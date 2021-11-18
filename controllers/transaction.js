@@ -17,19 +17,19 @@ async function addTransaction(req, res) {
     if (error)
       return res.status(500).send({
         ok: false,
-        msg: "Error al crear usuario",
+        msg: "Error al crear la transacción.",
         error,
       });
 
     if (!transaction)
       return res.status(404).send({
         ok: false,
-        msg: "No se pudo crear el usuario",
+        msg: "No se pudo crear la transacción.",
       });
 
     return res.status(200).send({
       ok: true,
-      msg: "El usuario fue CREADO correctamente",
+      msg: "La Transacción fue CREADA correctamente",
       transaction,
     });
   });
@@ -45,7 +45,7 @@ async function getTransactions(req, res) {
 
   res.status(200).send({
     ok: true,
-    msg: "Se obtuvieron los usuarios",
+    msg: "Se obtuvieron las transacciónes.",
     transactions,
     total,
     per_page,
@@ -54,8 +54,6 @@ async function getTransactions(req, res) {
 }
 
 function getTransaction(req, res) {
-  console.log(req);
-  console.log(req.params);
   const id = req.params.id;
 
   // llamada a la DB Transaction
@@ -63,18 +61,18 @@ function getTransaction(req, res) {
     if (error)
       return res.status(500).send({
         ok: false,
-        msg: "Error al obtener usuario",
+        msg: "Error al obtener la Transacción.",
         error,
       });
     if (!transaction)
       return res.status(404).send({
         ok: false,
-        msg: "Usuario NO encontrado",
+        msg: "Transacción NO encontrada",
         transaction,
       });
     return res.status(200).send({
       ok: true,
-      msg: "Usuario obtenido CORRECTAMENTE de la DB",
+      msg: "Transacción obtenida CORRECTAMENTE de la DB",
       transaction,
     });
   });
@@ -88,18 +86,18 @@ function delTransaction(req, res) {
     if (error)
       return res.status(500).send({
         ok: false,
-        msg: "No se pudo borrar el usuario",
+        msg: "No se pudo borrar la transacción.",
         error,
       });
     if (!transactionDeleted)
       return res.status(404).send({
         ok: false,
-        msg: "Usuario no encotrado",
+        msg: "Transacción no encotrado",
       });
 
     return res.status(200).send({
       ok: true,
-      msg: "Usuario borrado correctamente",
+      msg: "Transacción borrada correctamente",
       transactionDeleted,
     });
   });
