@@ -1,5 +1,5 @@
 var User = require('../models/user');
-
+var bcrypt = require('bcrypt');
 
 
 async function addUser (req, res) {
