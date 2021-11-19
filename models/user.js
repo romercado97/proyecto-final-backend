@@ -18,5 +18,6 @@ const UserSchema = new Schema ({
     role: {type: String, required: true, enum: rolesValidos},
     //avatar: { type: String, default: 'default.png'}
 })
-                                //la BD crea una conexió "users" En plural
+
+
 module.exports = mongoose.model('User', UserSchema);

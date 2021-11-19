@@ -1,8 +1,9 @@
 var User = require('../models/user');
 var bcrypt = require('bcrypt');
-
+var salt = 10;
 
 async function addUser (req, res) {
+    console.log('Hola desde adduser');
 
     if(!req.body.password || !req.body.email || !req.body.name) { //chequeamos si los datos que son requeridos obligtoriamente vienen en la requets
         return res.status(400).send({

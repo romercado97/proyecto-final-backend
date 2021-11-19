@@ -2,7 +2,7 @@ var express = require('express');
 
 var userController = require('../controllers/user');
 
-var api = express.Router(); //No se que es esto, no lo toco. (creo que es la prpiedad de express de por rutiar las funciones)
+var api = express.Router(); //(creo que es la prpiedad de express de por rutiar las funciones)
 
 api.post('/add-user', userController.addUser);
 

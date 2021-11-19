@@ -12,7 +12,7 @@ var user_routes = require('./routes/user');
 app.use(express.urlencoded({extended: true})); //me permite leer el body encriptado
 
 
-app.use('/', [
+app.use('/api', [
     user_routes
 ])
 
