@@ -14,7 +14,8 @@ app.use(express.urlencoded({extended: true})); //me permite leer el body encript
 
 
 app.use('/api', [
-    user_routes
+    user_routes,
+    transaction_routes,
 ])
 
 module.exports=app;
