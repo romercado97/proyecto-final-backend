@@ -104,9 +104,33 @@ function delTransaction(req, res) {
   });
 }
 
+function putTransaction(req, res) {
+  const id = req.params.id;
+  Transaction.findByIdAndPut(id, (error, transactionPut) => {
+    if (error)
+      return res.status(500).send({
+        ok: false,
+        msg: "No se pudo modificar la transacción.",
+        error,
+      });
+    if (!transactionPut)
+      return res.status(404).send({
+        ok: false,
+        msg: "Transacción no encontrada",
+      });
+
+    return res.status(200).send({
+      ok: true,
+      msg: "Transacción modificada correctamente",
+      transactionPut,
+    });
+  });
+}
+
 module.exports = {
   addTransaction,
   getTransactions,
   getTransaction,
   delTransaction,
+  putTransaction,
 };
