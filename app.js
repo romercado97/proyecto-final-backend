@@ -13,7 +13,7 @@ var transaction_routes = require('./routes/transaction');
 app.use(express.urlencoded({extended: true})); //me permite leer el body encriptado
 
 
-app.use('/', [
+app.use('/api', [
     user_routes,
     transaction_routes,
 ])
