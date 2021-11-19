@@ -8,7 +8,7 @@ api.post('/transaction', transactionController.addTransaction);
 
 api.get('/transaction/:id/:name', transactionController.getTransaction);
 
-api.delete('/transactionr/:id', transactionController.delTransaction);
+api.delete('/transaction/:id', transactionController.delTransaction);
 
 api.put('/transaction/:id', transactionController.updateTransaction);
 
