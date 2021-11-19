@@ -1,4 +1,5 @@
-var Transaction = require("../models/Transaction");
+var Transaction = require("../models/transaction");
+var bcrypt = require("bcrypt");
 
 async function addTransaction(req, res) {
   let reqTransaction = req.body;

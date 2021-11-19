@@ -1,4 +1,4 @@
-var mongoose = require("mongoose");
+var mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
@@ -18,4 +18,4 @@ const TransactionSchema = new Schema({
 });
 
 // transactions
-module.exports = mongoose.model("Transaction", TransactionSchema);
+module.exports = mongoose.model('Transaction', TransactionSchema);
