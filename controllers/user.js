@@ -1,9 +1,10 @@
 var User = require('../models/user');
 var bcrypt = require('bcrypt');
 var salt = 10;
+var jwtHelper = require('../helpers/jwt');
 
 async function addUser (req, res) {
-    console.log('Hola desde adduser');
+    //console.log('Hola desde adduser');
 
     if(!req.body.password || !req.body.email || !req.body.name) { //chequeamos si los datos que son requeridos obligtoriamente vienen en la requets
         return res.status(400).send({
@@ -102,8 +103,56 @@ async function getUsers(req, res) {
 }
 
 
+//login user
+
+const login = async (req, res) => {
+    const passwordText = req.body.password;
+    const emailToFind = req.body.email;
+    try {
+        const user = await User.findOne({
+            email: emailToFind
+        }).exec();
+        console.log('find')
+        if (!user) return res.status(404).send({
+            ok: false,
+            msg: 'El usuario no fue encontrado',
+        });
+
+        const passwordDBHashed = user.password;
+        // claveplana    dasdsa0-das-9das90-8dsa7890d7890asd890sad0-
+        const result = await bcrypt.compare(passwordText, passwordDBHashed);
+        console.log('bcrypt')
+        if (result) {
+            // Elimino el password del usuario obtenido en la base de datos para no devolverlo como propiedad en mi respuesta
+            user.password = undefined;
+
+            // Generar el JWT
+            const token = await jwtHelper.generateJWT(user);
+            console.log('jwt')
+            return res.status(200).send({
+                ok: true,
+                msg: 'Login correcto',
+                user,
+                token
+            })
+        } else {
+            return res.status(401).send({
+                ok: false,
+                msg: 'Datos ingresados no son correcto.'
+            })
+        }
+    } catch (error) {
+        return res.status(500).send({
+            ok: false,
+            msg: 'No se pudo realizar el login',
+            error
+        })
+    }
+}
+
 module.exports = {
     addUser,
     getUser,
-    getUsers
+    getUsers,
+    login
 }

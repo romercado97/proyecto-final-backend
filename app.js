@@ -18,4 +18,4 @@ app.use('/api', [
     transaction_routes,
 ])
 
-module.exports=app;
+module.exports = app;

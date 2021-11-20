@@ -4,6 +4,7 @@ const app = require('./app');
 var PORT = 3001;
 
 const URL = `mongodb+srv://proyectofinalro:${password}@prueba.1xmst.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+
 //funcion que conecta con la base de datos
 (async function con(){
     try {
