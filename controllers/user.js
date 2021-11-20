@@ -6,6 +6,13 @@ var jwtHelper = require('../helpers/jwt');
 async function addUser (req, res) {
     //console.log('Hola desde adduser');
 
+    if (req.user.role === 'STUDENT_ROLE') {
+        return res.status(401).send({
+            ok: false,
+            msg: 'No tiene permisos para crear un usuario'
+        })
+    }
+
     if(!req.body.password || !req.body.email || !req.body.name) { //chequeamos si los datos que son requeridos obligtoriamente vienen en la requets
         return res.status(400).send({
             ok:false,
@@ -91,6 +98,14 @@ async function getUsers(req, res) {
     const total = users.length;
     const per_page = 2;
     const total_pages = Math.ceil(total/per_page);
+
+
+    if (req.user.role === 'STUDENT_ROLE') {
+        return res.status(401).send({
+            ok: false,
+            msg: 'No tiene permisos para acceder a la información de este usuario'
+        })
+    }
 
     res.status(200).send({
         ok: true,
