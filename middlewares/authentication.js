@@ -2,10 +2,11 @@ var jwt = require('jsonwebtoken');
 var SEED = require('../config/config').SEED;
 
 const ensureAuth = (req, res, next) => {
+
     if(!req.headers.authorization) {
         return res.status(401).send({ ok: false, msg: 'Authorization FAIL: Token null'})
     }
-    const token = req.headers.authorization.replace(/['"]+/g, '');
+    const token = req.headers.authorization.replace('Bearer ',''); //obtenemos solo
     jwt.verify(token, SEED, (error, jwtDecoded) => {    //el tercer parametro es una función de callback. Esto es: envío el token y la semilla, si es satisfactorio, obtengo un token decodificado y sino me devuelve un error
         if(error) return res.status(500).send({
             ok: false,
