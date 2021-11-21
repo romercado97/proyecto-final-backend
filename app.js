@@ -1,7 +1,9 @@
 var express = require('express');
 var app = express();
+var cors = require('cors');
 
-
+//permitir peticiones cross origin request
+app.use(cors());
 
 app.get('/', function(request, response) {
     response.send('Hola desde el servidor express');
