@@ -106,7 +106,7 @@ function delTransaction(req, res) {
 
 function putTransaction(req, res) {
   const id = req.params.id;
-  Transaction.findByIdAndPut(id, (error, transactionPut) => {
+  Transaction.findById(id, (error, transactionPut) => {
     if (error)
       return res.status(500).send({
         ok: false,

@@ -4,7 +4,7 @@ var transactionController = require('../controllers/transaction');
 
 var api = express.Router();
 
-api.post('/transaction', transactionController.addTransaction);
+api.post("/transaction/:id", transactionController.addTransaction);
 
 api.get('/transaction/:id/:name', transactionController.getTransaction);
 
