@@ -2,8 +2,8 @@ var express = require('express');
 var app = express();
 var cors = require('cors');
 
-app.use(cors());
-app.use(express.json())
+app.use(cors()); // para permitir peticiones desde puerto 3000
+app.use(express.json()) // para parsear automaticamente los json
 
 app.get('/', function(request, response) {
     response.send('Hola desde el servidor express');
