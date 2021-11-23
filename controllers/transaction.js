@@ -1,136 +1,203 @@
-var Transaction = require("../models/transaction");
-var bcrypt = require("bcrypt");
+const Transaction = require("../models/transaction");
+const User = require("../models/user");
 
-async function addTransaction(req, res) {
-  let reqTransaction = req.body;
-  if (!reqTransaction.password || !reqTransaction.email) {
-    return res.status(400).send({
+async function createTransaction(req, res) {
+  try {
+    let newTransaction = new Transaction(req.body);
+    const transaction = await newTransaction.save();
+
+    if (!transaction)
+      return res.status(401).send({
+        ok: false,
+        msg: "No se guardo la transacción",
+      });
+
+    return res.status(200).send({
+      ok: true,
+      msg: "Se creo la transacción correctamente",
+      transaction,
+    });
+  } catch (error) {
+    return res.status(500).send({
       ok: false,
-      msg: "Debe enviar todos los campos requeridos",
+      msg: "No se pudo crear la transacción",
+      error,
     });
   }
+}
 
-  console.log(reqTransaction);
+const getMovements = async (req, res) => {
+  console.log(req.query);
+  const id = req.query.id;
+  const start = +req.query.start || 0;
+  const limit = +req.query.limit || 5;
 
-  let transaction = new Transaction(reqTransaction);
-  // Se guarda el nuevo usuario en la DB
-  transaction.save((error, transaction) => {
+  if (req.user.role === "STUDENT_ROLE" && (!id || req.user._id !== id)) {
+    return res
+      .status(401)
+      .send({ ok: false, msg: "No puede acceder a las transacciones" });
+  }
+
+  
+
+  const typeOfMovement = req.params.type;
+  if (id) {
+    try {
+      let transactions = await Transaction.find({ student_id: id });
+      let user = await User.findById(id).exec();
+      console.log(transactions);
+      console.log(user);
+      if (!transactions || !user) {
+        return res.status(404).send({
+          ok: false,
+          msg: "No se pudo obtener las transaccioneso usuarios",
+        });
+      }
+
+      return res.status(200).send({
+        ok: true,
+        msg: "Transacciones y Usuario obtenidos correctamente",
+        transactions,
+        user,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        ok: false,
+        msg: "Error al obtener transacciones del usuario",
+        error,
+      });
+    }
+    
+  } else {
+    try {
+      console.log(limit, start);
+      
+      const [total, transactions] = await Promise.all([
+        Transaction.countDocuments(),
+        Transaction.find({})
+          .skip(start)
+          .limit(limit)
+          .sort("-value description")
+          .populate("student_id", "name surname email")
+          .exec(),
+      ]);
+      if (!transactions)
+        return res.status(404).send({
+          ok: false,
+          msg: "No existen transacciones en la base de datos",
+        });
+
+      return res.status(200).send({
+        ok: true,
+        msg: "Transacciones obtenidas correctamente",
+        itemsPerPage: limit,
+        total: total,
+        pages: Math.ceil(total / limit),
+        transactions,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        ok: false,
+        msg: "Error al obtener transacciónes",
+        error,
+      });
+    }
+
+    
+  }
+};
+
+const getMovementsByValue = function (req, res) {
+  console.log("Entra al criteria");
+  const criteria = req.params.criteria;
+  console.log(criteria);
+  Transaction.find({
+    $or: [
+      {
+        $and: [{ description: "Gas" }, { created_at: { $gte: 1631833012667 } }],
+      },
+      {
+        value: { $gte: 20000 },
+      },
+    ],
+  })
+  .exec((error, transactions) => {
     if (error)
       return res.status(500).send({
         ok: false,
-        msg: "Error al crear la transacción.",
+        msg: "Error al obtener Transacciones",
         error,
       });
-
-    if (!transaction)
+    if (!transactions)
       return res.status(404).send({
         ok: false,
-        msg: "No se pudo crear la transacción.",
+        msg: "No se pudo obtener ninguna transacción con los criterios de busqueda enviados",
       });
-
     return res.status(200).send({
       ok: true,
-      msg: "La Transacción fue CREADA correctamente",
-      transaction,
+      msg: `Transacciones encontradas referentes a ${criteria}`,
+      count: transactions.length,
+      transactions,
     });
   });
-}
+};
 
-async function getTransactions(req, res) {
-  // llamada a la DB
-  let transactions = await Transaction.find({});
-
-  const total = transactions.length;
-  const per_page = 2;
-  const total_pages = Math.ceil(total / per_page);
-
-  res.status(200).send({
-    ok: true,
-    msg: "Se obtuvieron las transacciónes.",
-    transactions,
-    total,
-    per_page,
-    total_pages,
-  });
-}
-
-function getTransaction(req, res) {
+function updateMovement(req, res) {
   const id = req.params.id;
-
-  // llamada a la DB Transaction
-  Transaction.findById(id, (error, transaction) => {
-    if (error)
-      return res.status(500).send({
-        ok: false,
-        msg: "Error al obtener la Transacción.",
-        error,
+  const update = req.body;
+  console.log(req.params);
+  Transaction.findByIdAndUpdate(
+    id,
+    update,
+    { new: true },
+    (error, transactionUpdated) => {
+      if (error)
+        return res.status(500).send({
+          ok: false,
+          msg: "Error al actualizar la transacción",
+          error,
+        });
+      if (!transactionUpdated)
+        return res.status(404).send({
+          ok: false,
+          msg: "No se encontró la transacción a actualizar ",
+        });
+      return res.status(200).send({
+        ok: true,
+        msg: "",
+        transactionUpdated,
       });
-    if (!transaction)
-      return res.status(404).send({
-        ok: false,
-        msg: "Transacción NO encontrada",
-        transaction,
-      });
-    return res.status(200).send({
-      ok: true,
-      msg: "Transacción obtenida CORRECTAMENTE de la DB",
-      transaction,
-    });
-  });
+    }
+  );
 }
 
-// Transaction.find({ country: 'Jhon' })
+//  buscarTransacciones();
 
-function delTransaction(req, res) {
-  const id = req.params.id;
-  Transaction.findByIdAndDelete(id, (error, transactionDeleted) => {
-    if (error)
-      return res.status(500).send({
-        ok: false,
-        msg: "No se pudo borrar la transacción.",
-        error,
-      });
-    if (!transactionDeleted)
-      return res.status(404).send({
-        ok: false,
-        msg: "Transacción no encotrado",
-      });
-
-    return res.status(200).send({
-      ok: true,
-      msg: "Transacción borrada correctamente",
-      transactionDeleted,
-    });
+function updateInvalidDate(req, res) {
+  let transactionArrayFromDB = [
+    { created_at: 1632442060.957 },
+    { created_at: 1632442060000 },
+    { created_at: 1632442060000 },
+    { created_at: 1632442060.957 },
+  ];
+  transactionArrayFromDB.forEach((t) => {
+    let createdLength = t.created_at.toString().length;
+    if (createdLength > 10) {
+      if (createdLength === 14) {
+        t.created_at = t.created_at.toString().replace(".", "");
+        t.created_at = parseInt(t.created_at);
+      }
+      t.created_at = parseInt(t.created_at / 1000);
+    }
   });
-}
 
-function putTransaction(req, res) {
-  const id = req.params.id;
-  Transaction.findById(id, (error, transactionPut) => {
-    if (error)
-      return res.status(500).send({
-        ok: false,
-        msg: "No se pudo modificar la transacción.",
-        error,
-      });
-    if (!transactionPut)
-      return res.status(404).send({
-        ok: false,
-        msg: "Transacción no encontrada",
-      });
-
-    return res.status(200).send({
-      ok: true,
-      msg: "Transacción modificada correctamente",
-      transactionPut,
-    });
-  });
+  console.log(transactionArrayFromDB);
 }
 
 module.exports = {
-  addTransaction,
-  getTransactions,
-  getTransaction,
-  delTransaction,
-  putTransaction,
+  createTransaction,
+  getMovements,
+  getMovementsByValue,
+  updateMovement,
+  updateInvalidDate,
 };

@@ -54,19 +54,30 @@ async function addUser (req, res) {
 }
 
 function getUser(req, res) {
-    // Si no me envian ID de usuario a buscar, devuelvo error por que no voy a saber de quien es que hay que buscar datos
+   
+    // Si el usuario es un ESTUD y el id que quiere consultar datos de la persona no son los de el, no puedo dejar pasar
+    if (req.user.role === 'STUDENT_ROLE' && req.user._id !== req.params.id) {
+
+        return res.status(401).send({
+            ok: false,
+            msg: 'No tiene permisos para acceder a la información de este usuario'
+        })
+    } 
+    // else {
+    //     return res.status(200).send({
+    //         ok:true,
+    //         msg:'Se obtuvieron tus datos correctamente',
+    //         user
+    //     })
+    // }
+    
+
+    // Si no me envian ID de usuario a buscar, devuelvo error por que no voy a saber de quien es que hay que buscar datos7
+    
     if (!req.params.id) {
         return res.status(401).send({
             ok: false,
             msg: 'Debe enviar un id'
-        })
-    }
-
-    // Si el usuario es un cliente y el id que quiere consultar datos de la persona no son los de el, no puedo dejar pasar
-    if (req.user.role === 'STUDENT_ROLE' && req.user._id !== req.params.id) {
-        return res.status(401).send({
-            ok: false,
-            msg: 'No tiene permisos para acceder a la información de este usuario'
         })
     }
 
