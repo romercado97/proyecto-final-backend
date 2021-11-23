@@ -32,7 +32,7 @@ const getMovements = async (req, res) => {
   const start = +req.query.start || 0;
   const limit = +req.query.limit || 5;
 
-  if (req.user.role === "CLIENT_ROLE" && (!id || req.user._id !== id)) {
+  if (req.user.role === "STUDENT_ROLE" && (!id || req.user._id !== id)) {
     return res
       .status(401)
       .send({ ok: false, msg: "No puede acceder a las transacciones" });
@@ -43,7 +43,7 @@ const getMovements = async (req, res) => {
   const typeOfMovement = req.params.type;
   if (id) {
     try {
-      let transactions = await Transaction.find({ client_id: id });
+      let transactions = await Transaction.find({ student_id: id });
       let user = await User.findById(id).exec();
       console.log(transactions);
       console.log(user);
@@ -71,15 +71,14 @@ const getMovements = async (req, res) => {
   } else {
     try {
       console.log(limit, start);
-      // $lt: menor que       // $lte: menor o igual que      // $gt: mayor que
-      // $gte: mayor o igual que   //$ne: not equal
+      
       const [total, transactions] = await Promise.all([
         Transaction.countDocuments(),
         Transaction.find({})
           .skip(start)
           .limit(limit)
           .sort("-value description")
-          .populate("client_id", "name surname email")
+          .populate("student_id", "name surname email")
           .exec(),
       ]);
       if (!transactions)
